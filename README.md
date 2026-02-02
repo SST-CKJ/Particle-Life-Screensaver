@@ -6,7 +6,7 @@ This screensaver brings the captivating [Particle Life simulation](https://githu
 ## Installation
 There are 2 options for you to install the screensaver, with option 1 being the easier option for the general public
 
-### Option 1: Downloading the Lastest Release
+### Option 1: Download the Lastest Release
 #### Prerequisites
 - macOS Sequoia 15.4
 
@@ -18,7 +18,7 @@ There are 2 options for you to install the screensaver, with option 1 being the 
 5. When prompted, select **Install**
 6. Open **System Settings → Screen Saver** and select "Particle Life" from the available screensavers (it is usually housed under the **Others** category)
 
-### Option 2: Downloading Source Code
+### Option 2: Download the Source Code
 #### Prerequisites
 - macOS Sequoia 15.4 or later
 - Xcode 14 or later
