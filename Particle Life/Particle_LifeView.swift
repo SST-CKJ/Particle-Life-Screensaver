@@ -41,6 +41,11 @@ class Particle_LifeView: ScreenSaverView {
         NSColor(red: 1.0, green: 0.5, blue: 0.0, alpha: 1.0),  // Orange
     ]
     
+    
+    static let NewInstanceNotification = Notification.Name("com.particlelife.newinstance")
+    
+    
+    // Setup Functions
     override init?(frame: NSRect, isPreview: Bool) {
         super.init(frame: frame, isPreview: isPreview)
         self.animationTimeInterval = 1.0 / 60.0
@@ -52,7 +57,28 @@ class Particle_LifeView: ScreenSaverView {
         self.animationTimeInterval = 1.0 / 60.0
         setup()
     }
+    
+    private func generateAttractionMatrix() -> [[CGFloat]] {
+        var matrix: [[CGFloat]] = []
+        for _ in 0..<numTypes {
+            var row: [CGFloat] = []
+            for _ in 0..<numTypes {
+                row.append(CGFloat.random(in: -1...1))
+            }
+            matrix.append(row)
+        }
+        return matrix
+    }
+    
     private func setup() {
+        // For notifying cleanup function
+        DistributedNotificationCenter.default.addObserver(
+            self,
+            selector: #selector(willStop(_:)),
+            name: Notification.Name("com.apple.screensaver.willstop"),
+            object: nil
+        )
+        
         // Generate random attraction matrix
         attractionMatrix = generateAttractionMatrix()
         
@@ -68,22 +94,10 @@ class Particle_LifeView: ScreenSaverView {
         }
     }
     
-    private func generateAttractionMatrix() -> [[CGFloat]] {
-        var matrix: [[CGFloat]] = []
-        for _ in 0..<numTypes {
-            var row: [CGFloat] = []
-            for _ in 0..<numTypes {
-                row.append(CGFloat.random(in: -1...1))
-            }
-            matrix.append(row)
-        }
-        return matrix
-    }
-    
 
+    // Animating Functions
     override func animateOneFrame() {
         super.animateOneFrame()
-        
         updateParticles()
         needsDisplay = true
         setNeedsDisplay(bounds)
@@ -177,7 +191,11 @@ class Particle_LifeView: ScreenSaverView {
         }
     }
     
-    override var hasConfigureSheet: Bool {
-        return false
+    
+    // Cleanup Functions
+    @objc func willStop(_ notification: Notification) {
+        stopAnimation()
+        DistributedNotificationCenter.default.removeObserver(self)
+        exit(0)
     }
 }
