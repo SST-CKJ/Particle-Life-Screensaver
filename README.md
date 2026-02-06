@@ -40,3 +40,4 @@ To export the source code as a `.saver` file from Xcode,
 
 ## Credits
 Inspired by [hunar4321's Particle Life simulator](https://github.com/hunar4321/particle-life).
+Alexander for testing my product.
