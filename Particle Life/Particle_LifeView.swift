@@ -20,14 +20,17 @@ struct Particle {
 class Particle_LifeView: ScreenSaverView {
     
     // Can tweak these values to however you like
-    private let particleRadius: CGFloat = 3.0       // Radius of each particle in pixels.
+    private let particleRadius: CGFloat = 2.0       // Radius of each particle in pixels.
 
-    private let numParticles = 500                  // Total number of particles.
+    private let numParticles = 1000                 // Total number of particles.
     private let numTypes = 6                        // Number of particle types/colours (higher means more complexity). If you increase this variable, add more colour(s) to the colors list below
-    private let maxDistance: CGFloat = 80.0         // Maximum interaction range in pixels.
+    private let maxDistance: CGFloat = 60.0         // Maximum interaction range in pixels.
     private let forceFactor: CGFloat = 5.0          // Strength of forces
-    private let beta: CGFloat = 0.3                 // Repulsion threshold to prevent particles from clumping up until it looks like a single particle
-    private let frictionFactor: CGFloat = 0.95      // Velocity dampening (0.0 - 1.0, higher -> less friction)
+    private let beta: CGFloat = 0.2                 // Repulsion threshold to prevent particles from clumping up until it looks like a single particle
+    private let frictionFactor: CGFloat = 0.94      // Velocity dampening (0.0 - 1.0, higher -> less friction)
+    
+    private var spatialGrid: [[Int]] = []           // For optimisation purposes
+    private let cellSize: CGFloat = 70.0            // Must be adjusted to be slightly greater than maxDistance
     
     private var particles: [Particle] = []
     private var attractionMatrix: [[CGFloat]] = []
@@ -39,6 +42,7 @@ class Particle_LifeView: ScreenSaverView {
         NSColor(red: 1.0, green: 1.0, blue: 0.3, alpha: 1.0),  // Yellow
         NSColor(red: 0.5, green: 0.0, blue: 0.5, alpha: 1.0),  // Purple
         NSColor(red: 1.0, green: 0.5, blue: 0.0, alpha: 1.0),  // Orange
+        NSColor(red: 0.3, green: 1.0, blue: 1.0, alpha: 1.0),  // Cyan
     ]
     
     
@@ -103,39 +107,88 @@ class Particle_LifeView: ScreenSaverView {
         setNeedsDisplay(bounds)
     }
     
+    private func updateSpatialGrid() {
+        let cols = Int(ceil(bounds.width / cellSize))
+        let rows = Int(ceil(bounds.height / cellSize))
+        
+        // Reset grid
+        spatialGrid = Array(repeating: [], count: rows * cols)
+        
+        // Place particles in grid cells
+        for (index, particle) in particles.enumerated() {
+            let col = Int(particle.x / cellSize)
+            let row = Int(particle.y / cellSize)
+            let cellIndex = row * cols + col
+            
+            if cellIndex >= 0 && cellIndex < spatialGrid.count {
+                spatialGrid[cellIndex].append(index)
+            }
+        }
+    }
+
     private func updateParticles() {
         let dt: CGFloat = 1.0 / 60.0
+        let halfWidth = bounds.width / 2
+        let halfHeight = bounds.height / 2
+        let maxDistSquared = maxDistance * maxDistance
+        
+        updateSpatialGrid()
+        
+        let cols = Int(ceil(bounds.width / cellSize))
+        let rows = Int(ceil(bounds.height / cellSize))
         
         // Calculate forces and velocities
         for i in 0..<particles.count {
             var totalForceX: CGFloat = 0
             var totalForceY: CGFloat = 0
             
-            for j in 0..<particles.count {
-                if i == j { continue }
-                
-                var dx = particles[j].x - particles[i].x
-                var dy = particles[j].y - particles[i].y
-                
-                // Handle screen wrapping for force calculation
-                if abs(dx) > bounds.width / 2 {
-                    dx = dx > 0 ? dx - bounds.width : dx + bounds.width
-                }
-                if abs(dy) > bounds.height / 2 {
-                    dy = dy > 0 ? dy - bounds.height : dy + bounds.height
-                }
-                
-                let dist = sqrt(dx * dx + dy * dy)
-                
-                if dist < maxDistance {
-                    let normalisedDist = dist / maxDistance
-                    let force = calculateForce(
-                        distance: normalisedDist,
-                        attraction: attractionMatrix[particles[i].type][particles[j].type]
-                    )
+            // Find which cell this particle is in
+            let col = Int(particles[i].x / cellSize)
+            let row = Int(particles[i].y / cellSize)
+            
+            // Only check particles in nearby cells (3x3 grid around current cell)
+            for dRow in -1...1 {
+                for dCol in -1...1 {
+                    let checkRow = row + dRow
+                    let checkCol = col + dCol
                     
-                    totalForceX += (dx / dist) * force
-                    totalForceY += (dy / dist) * force
+                    // Skip if out of bounds
+                    if checkRow < 0 || checkRow >= rows || checkCol < 0 || checkCol >= cols {
+                        continue
+                    }
+                    
+                    let cellIndex = checkRow * cols + checkCol
+                    
+                    // Check only particles in this cell
+                    for j in spatialGrid[cellIndex] {
+                        if i == j { continue }
+                        
+                        var dx = particles[j].x - particles[i].x
+                        var dy = particles[j].y - particles[i].y
+                        
+                        // Handle screen wrapping
+                        if abs(dx) > halfWidth {
+                            dx = dx > 0 ? dx - bounds.width : dx + bounds.width
+                        }
+                        if abs(dy) > halfHeight {
+                            dy = dy > 0 ? dy - bounds.height : dy + bounds.height
+                        }
+                        
+                        let distSquared = dx * dx + dy * dy
+                        
+                        if distSquared > 0 && distSquared < maxDistSquared {
+                            let dist = sqrt(distSquared)
+                            let normalisedDist = dist / maxDistance
+                            
+                            let force = calculateForce(
+                                distance: normalisedDist,
+                                attraction: attractionMatrix[particles[i].type][particles[j].type]
+                            )
+                            
+                            totalForceX += (dx / dist) * force
+                            totalForceY += (dy / dist) * force
+                        }
+                    }
                 }
             }
             
