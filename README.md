@@ -11,12 +11,15 @@ There are 2 options for you to install the screensaver, with option 1 being the 
 - macOS Sequoia 15.4
 
 #### Steps
-1. Navigate to the [latest release](https://github.com/SST-CKJ/Particle-Life-Screensaver/releases/tag/v1.0.0)
+1. Navigate to the [latest release](https://github.com/SST-CKJ/Particle-Life-Screensaver/releases)
 2. Download `Particle.Life.saver.zip` under assets
 3. Unzip the file
 4. Double-click the extracted `.saver` file
-5. When prompted, select **Install**
-6. Open **System Settings → Screen Saver** and select "Particle Life" from the available screensavers (it is usually housed under the **Others** category)
+5. If the `.saver` file cannot be opened due security reasons, (this is because apple does not trust unknown developers)
+    1. Open settings and go to the **Privacy & Security** tab
+    2. Scroll down until you see `Particle Life.saver`  was blocked to protect your Mac and click **Open Anyway**
+6. When prompted, select **Install**
+7. Open **System Settings → Screen Saver** and select "Particle Life" from the available screensavers (it is usually housed under the **Others** category)
 
 ### Option 2: Download the Source Code
 #### Prerequisites
@@ -37,3 +40,5 @@ To export the source code as a `.saver` file from Xcode,
 
 ## Credits
 Inspired by [hunar4321's Particle Life simulator](https://github.com/hunar4321/particle-life).
+
+Alexander for testing my product.
