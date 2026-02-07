@@ -22,12 +22,12 @@ class Particle_LifeView: ScreenSaverView {
     // Can tweak these values to however you like
     private let particleRadius: CGFloat = 2.0       // Radius of each particle in pixels.
 
-    private let numParticles = 1000                 // Total number of particles.
+    private let numParticles = 1500                 // Total number of particles.
     private let numTypes = 6                        // Number of particle types/colours (higher means more complexity). If you increase this variable, add more colour(s) to the colors list below
     private let maxDistance: CGFloat = 60.0         // Maximum interaction range in pixels.
-    private let forceFactor: CGFloat = 5.0          // Strength of forces
+    private let forceFactor: CGFloat = 3.0          // Strength of forces
     private let beta: CGFloat = 0.2                 // Repulsion threshold to prevent particles from clumping up until it looks like a single particle
-    private let frictionFactor: CGFloat = 0.94      // Velocity dampening (0.0 - 1.0, higher -> less friction)
+    private let frictionFactor: CGFloat = 0.93      // Velocity dampening (0.0 - 1.0, higher -> less friction)
     
     private var spatialGrid: [[Int]] = []           // For optimisation purposes
     private let cellSize: CGFloat = 70.0            // Must be adjusted to be slightly greater than maxDistance
@@ -87,13 +87,13 @@ class Particle_LifeView: ScreenSaverView {
         attractionMatrix = generateAttractionMatrix()
         
         // Create particles
-        for _ in 0..<numParticles {
+        for i in 0..<numParticles {
             particles.append(Particle(
                 x: CGFloat.random(in: 0...bounds.width),
                 y: CGFloat.random(in: 0...bounds.height),
                 vx: 0,
                 vy: 0,
-                type: Int.random(in: 0..<numTypes)
+                type: i % numTypes
             ))
         }
     }
