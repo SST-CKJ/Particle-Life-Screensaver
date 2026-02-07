@@ -142,24 +142,24 @@ class Particle_LifeView: ScreenSaverView {
             var totalForceX: CGFloat = 0
             var totalForceY: CGFloat = 0
             
-            // Find which cell this particle is in
             let col = Int(particles[i].x / cellSize)
             let row = Int(particles[i].y / cellSize)
             
-            // Only check particles in nearby cells (3x3 grid around current cell)
+            // Check 3x3 grid around particle
             for dRow in -1...1 {
                 for dCol in -1...1 {
-                    let checkRow = row + dRow
-                    let checkCol = col + dCol
+                    var checkRow = row + dRow
+                    var checkCol = col + dCol
                     
-                    // Skip if out of bounds
-                    if checkRow < 0 || checkRow >= rows || checkCol < 0 || checkCol >= cols {
-                        continue
-                    }
+                    // Handle screen wrapping
+                    if checkRow < 0 { checkRow += rows }
+                    if checkRow >= rows { checkRow -= rows }
+                    if checkCol < 0 { checkCol += cols }
+                    if checkCol >= cols { checkCol -= cols }
                     
                     let cellIndex = checkRow * cols + checkCol
                     
-                    // Check only particles in this cell
+                    // Check particles in this cell
                     for j in spatialGrid[cellIndex] {
                         if i == j { continue }
                         
