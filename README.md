@@ -3,6 +3,12 @@ Particle Life Screensaver is a native macOS screensaver featuring particles that
 
 This screensaver brings the captivating [Particle Life simulation](https://github.com/hunar4321/particle-life) by hunar4321 to macOS as a native `.saver` implementation.
 
+## Demo
+![Demo](https://github.com/user-attachments/assets/854de740-e2f0-4bcb-8802-94a12aee56a6)
+
+*(The actual screensaver has higher framerate and better resolution)*
+
+
 ## Installation
 There are 2 options for you to install the screensaver, with option 1 being the easier option for the general public
 
