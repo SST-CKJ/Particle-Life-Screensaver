@@ -46,9 +46,6 @@ class Particle_LifeView: ScreenSaverView {
     ]
     
     
-    static let NewInstanceNotification = Notification.Name("com.particlelife.newinstance")
-    
-    
     // Setup Functions
     override init?(frame: NSRect, isPreview: Bool) {
         super.init(frame: frame, isPreview: isPreview)
@@ -80,6 +77,13 @@ class Particle_LifeView: ScreenSaverView {
             self,
             selector: #selector(willStop(_:)),
             name: Notification.Name("com.apple.screensaver.willstop"),
+            object: nil
+        )
+        
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(willStop(_:)),
+            name: NSWindow.willCloseNotification,
             object: nil
         )
         
@@ -246,9 +250,23 @@ class Particle_LifeView: ScreenSaverView {
     
     
     // Cleanup Functions
-    @objc func willStop(_ notification: Notification) {
-        stopAnimation()
+    override func stopAnimation() {
+        super.stopAnimation()
+        particles.removeAll()
+        attractionMatrix.removeAll()
+        NotificationCenter.default.removeObserver(self)
         DistributedNotificationCenter.default.removeObserver(self)
         exit(0)
+    }
+    
+    @objc func willStop(_ notification: Notification) {
+        stopAnimation()
+    }
+    
+    override func viewDidMoveToWindow() {
+        super.viewDidMoveToWindow()
+        if window == nil {
+            stopAnimation()
+        }
     }
 }
